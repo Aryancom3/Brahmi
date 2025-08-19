@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Brahmi — Roman & Devanagari → Brahmi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <div class="bg"></div>
+
+  <!-- Top Navigation -->
+  <header class="appbar">
+    <div class="brand">
+      <span class="logo">𑀩</span>
+      <span class="title">Brahmi</span>
+    </div>
+    <div class="actions">
+      <button id="themeBtn" class="ghost">🌙</button>
+      <a class="primary" id="pdfBtn" href="javascript:void(0)">Export PDF</a>
+      <a class="ghost" id="downloadBtn" href="javascript:void(0)">Download TXT</a>
+      <a class="ghost" id="copyBtn" href="javascript:void(0)">Copy Output</a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero fade-in">
+    <h1 class="hero-title gradient-text">Translate into Ancient Brahmi</h1>
+    <p class="hero-sub" id="tagline">Preserving scripts with modern tech...</p>
+  </section>
+
+  <!-- Main Translator -->
+  <main class="wrap">
+    <section class="panel input-panel glass fade-in">
+      <div class="panel-head">
+        <h2>Input</h2>
+        <div class="chips">
+          <span class="chip">Roman (IAST/ASCII)</span>
+          <span class="chip">Devanagari</span>
+        </div>
+      </div>
+
+      <!-- Mode Selector -->
+      <div class="row gap">
+        <label for="mode">Mode:</label>
+        <select id="mode" class="pill">
+          <option value="auto">Auto Detect</option>
+          <option value="roman">Roman → Brahmi</option>
+          <option value="sanskrit">Sanskrit → Brahmi</option>
+        </select>
+      </div>
+
+      <textarea id="inputText" placeholder="Type Roman (e.g., dharma, kṣetra) or Devanagari (e.g., धर्म, क्षेत्र) ..."></textarea>
+
+      <div class="row gap">
+        <div class="field">
+          <label>Detected</label>
+          <div id="detected" class="pill">—</div>
+        </div>
+        <div class="field">
+          <label>Meaning (from dictionary.json)</label>
+          <div id="meaning" class="meaning">—</div>
+        </div>
+      </div>
+
+      <div class="suggestions" id="suggestions"></div>
+    </section>
+
+    <section class="panel output-panel glass fade-in">
+      <div class="panel-head">
+        <h2>Brahmi Output</h2>
+        <div class="chips">
+          <span class="chip muted">Unicode Brahmi</span>
+        </div>
+      </div>
+
+      <div id="out" class="output" lang="bra" aria-live="polite"></div>
+
+      <div class="row split">
+        <div class="mini">
+          <label>IPA helper</label>
+          <div id="ipa" class="pill">—</div>
+        </div>
+        <div class="mini align-right">
+          <label>Stats</label>
+          <div id="stats" class="pill">0 chars</div>
+        </div>
+      </div>
+
+      <!-- Extra Controls -->
+      <div class="row gap center">
+        <button id="clearBtn" class="ghost">Clear</button>
+        <div id="loading" class="loader hidden"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="tiny">
+    <div class="footer-line"></div>
+    <span>Brahmi — By AM • Unicode-first • 98% rules + dictionary</span>
+  </footer>
+</body>
+</html>
