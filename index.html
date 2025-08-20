@@ -3,55 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Brahmi Translator</title>
+  <title>Brahmi Transliterator</title>
   <link rel="stylesheet" href="style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-  <div class="container">
+  <div class="app-container">
     <header>
-      <h1>𑀩𑁆𑀭𑀫𑀺 — Brahmi Translator</h1>
-      <p>Sanskrit → Roman → Brahmi</p>
+      <h1>Brahmi Transliterator</h1>
+      <p>Convert text between Sanskrit (Devanagari) and Roman scripts with accuracy tracking</p>
     </header>
 
     <!-- Tabs -->
     <div class="tabs">
-      <button id="tab-sanskrit" class="active">Sanskrit</button>
-      <button id="tab-roman">Roman</button>
+      <button class="tab active" id="tab-sanskrit">Sanskrit → Roman</button>
+      <button class="tab" id="tab-roman">Roman → Sanskrit</button>
     </div>
 
-    <!-- Input -->
-    <textarea id="inputText" placeholder="Type or paste Sanskrit / Roman text here..."></textarea>
-
-    <!-- Detection + Stats -->
-    <div class="info">
-      <span>Detected: <strong id="detected">—</strong></span>
-      <span id="stats"></span>
+    <!-- Input Area -->
+    <div class="input-section">
+      <textarea id="inputText" placeholder="Enter your text here..."></textarea>
     </div>
-
-    <!-- Output -->
-    <div id="out" class="output"></div>
-
-    <!-- Meaning + IPA -->
-    <div class="details">
-      <div><strong>IPA:</strong> <span id="ipa">—</span></div>
-      <div><strong>Meaning:</strong> <span id="meaning">—</span></div>
-    </div>
-
-    <!-- Suggestions -->
-    <div id="suggestions" class="suggestions"></div>
 
     <!-- Accuracy Bar -->
-    <div class="accuracy">
-      <div id="accuracyBar">0%</div>
+    <div class="accuracy-bar-container">
+      <div id="accuracyBar" class="accuracy-bar"></div>
+    </div>
+    <p id="accuracyLabel">Accuracy: 0%</p>
+
+    <!-- Convert Button -->
+    <div class="button-container">
+      <button id="convertBtn">Convert</button>
     </div>
 
-    <!-- Action buttons -->
-    <div class="actions">
-      <button id="copyBtn">Copy</button>
-      <button id="downloadBtn">Download TXT</button>
-      <button id="pdfBtn">Export PDF</button>
-      <button id="themeBtn">Toggle Theme</button>
+    <!-- Output Section -->
+    <div class="output-section">
+      <h2>Converted Output</h2>
+      <div id="outputText" class="output-box"></div>
     </div>
   </div>
 
