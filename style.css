@@ -1,150 +1,310 @@
-/* Global Reset */
+/* ============================================= */
+/* 1. GLOBAL STYLES & CSS VARIABLES              */
+/* ============================================= */
+
+/* Define a color palette and other global settings for easy customization */
+:root {
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    
+    /* Dark Theme Colors */
+    --bg-color: #0D1117;
+    --bg-gradient-start: #2D334D;
+    --panel-bg-color: rgba(22, 27, 34, 0.6); /* Semi-transparent for glass effect */
+    --panel-border-color: rgba(255, 255, 255, 0.1);
+    --text-primary: #c9d1d9;
+    --text-secondary: #8b949e;
+    --accent-color: #58a6ff;
+    --primary-button-bg: #238636;
+    --primary-button-hover-bg: #2ea043;
+    --default-button-bg: #21262d;
+    --default-button-hover-bg: #30363d;
+    --input-bg-color: #161b22;
+
+    /* Spacing & Radius */
+    --main-padding: 2rem;
+    --panel-padding: 1.5rem;
+    --border-radius-lg: 16px;
+    --border-radius-md: 8px;
+}
+
+/* Basic reset for consistent styling across browsers */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-/* Body */
+/* ============================================= */
+/* 2. BODY & LAYOUT SETUP                        */
+/* ============================================= */
+
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #f9f9f9, #ececec);
-  color: #222;
-  line-height: 1.6;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-  padding: 20px;
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    background-image: radial-gradient(circle at top left, var(--bg-gradient-start), var(--bg-color) 40%);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: var(--main-padding);
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.3s ease;
 }
 
-/* Header */
-header {
-  text-align: center;
-  margin-bottom: 20px;
+/* Main container that holds the two panels */
+.converter-container {
+    display: flex;
+    gap: 2rem;
+    flex-grow: 1; /* Allows the main container to fill vertical space */
+    width: 100%;
+    max-width: 1400px; /* Set a max-width for very large screens */
+    margin: 0 auto; /* Center the container */
 }
 
-header h1 {
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: #2c3e50;
+/* ============================================= */
+/* 3. HEADER SECTION                             */
+/* ============================================= */
+
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto 2rem auto;
 }
 
-header p {
-  font-size: 1rem;
-  color: #555;
-  margin-top: 5px;
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-/* Input Section */
-#input-section {
-  width: 100%;
-  max-width: 800px;
-  margin: 20px 0;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 12px;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+.logo-icon {
+    font-size: 1.8rem;
+    color: var(--accent-color);
 }
 
-textarea {
-  width: 100%;
-  height: 120px;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  resize: none;
-  font-size: 1rem;
-  outline: none;
-  transition: border 0.2s;
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
-textarea:focus {
-  border-color: #2980b9;
-  box-shadow: 0 0 6px rgba(41, 128, 185, 0.4);
+/* General button styling */
+.action-button, .icon-button {
+    background-color: var(--default-button-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--panel-border-color);
+    padding: 0.6rem 1.2rem;
+    border-radius: var(--border-radius-md);
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-/* Buttons */
-button {
-  margin-top: 12px;
-  padding: 10px 18px;
-  background: #2980b9;
-  color: #fff;
-  font-size: 0.95rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.25s ease;
+.action-button:hover, .icon-button:hover {
+    background-color: var(--default-button-hover-bg);
 }
 
-button:hover {
-  background: #1c5d82;
+.action-button:active, .icon-button:active {
+    transform: scale(0.98);
 }
 
-/* Tabs */
-#tabs {
-  display: flex;
-  justify-content: center;
-  margin: 20px 0;
-  gap: 10px;
+/* Primary button style (e.g., "Copy Output") */
+.action-button.primary {
+    background-color: var(--primary-button-bg);
+    border-color: transparent;
 }
 
-.tab {
-  padding: 10px 18px;
-  background: #ecf0f1;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.25s ease;
+.action-button.primary:hover {
+    background-color: var(--primary-button-hover-bg);
 }
 
-.tab.active {
-  background: #2980b9;
-  color: #fff;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+/* Icon-only button (e.g., theme toggle) */
+.icon-button {
+    padding: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.icon-button svg {
+    width: 18px;
+    height: 18px;
 }
 
-/* Output Section */
-#output-section {
-  width: 100%;
-  max-width: 800px;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+
+/* ============================================= */
+/* 4. GLASSMORPHISM PANELS                       */
+/* ============================================= */
+
+.panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--panel-bg-color);
+    border: 1px solid var(--panel-border-color);
+    border-radius: var(--border-radius-lg);
+    padding: var(--panel-padding);
+    
+    /* The Glassmorphism Effect */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    transition: background-color 0.3s ease;
 }
 
-#output {
-  font-size: 1.2rem;
-  font-weight: 500;
-  color: #2c3e50;
-  word-wrap: break-word;
-  line-height: 1.8;
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-shrink: 0;
 }
 
-/* Accuracy Bar */
-#accuracyContainer {
-  margin: 20px 0;
-  width: 100%;
-  max-width: 800px;
-  background: #ecf0f1;
-  border-radius: 10px;
-  overflow: hidden;
-  height: 20px;
+.panel-header h2 {
+    font-size: 1.1rem;
+    font-weight: 500;
 }
 
-#accuracyBar {
-  width: 0%;
-  height: 100%;
-  background: linear-gradient(90deg, #27ae60, #2ecc71);
-  transition: width 0.5s ease-in-out;
+.tabs {
+    display: flex;
+    gap: 0.5rem;
 }
 
-/* Footer */
-footer {
-  margin-top: auto;
-  padding: 20px;
-  text-align: center;
-  font-size: 0.85rem;
-  color: #777;
+.tab-button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 0.5rem 0.25rem;
+    cursor: pointer;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.tab-button:hover {
+    color: var(--text-primary);
+}
+
+.tab-button.active {
+    color: var(--text-primary);
+    border-bottom-color: var(--accent-color);
+}
+
+/* ============================================= */
+/* 5. INPUT, OUTPUT & INFO BOXES                 */
+/* ============================================= */
+
+#input-textarea, .output-area {
+    width: 100%;
+    flex-grow: 1; /* Makes the text area fill the panel's height */
+    background-color: var(--input-bg-color);
+    border: 1px solid var(--panel-border-color);
+    border-radius: var(--border-radius-md);
+    padding: 1rem;
+    color: var(--text-primary);
+    font-size: 1rem;
+    line-height: 1.6;
+    resize: none; /* Disable user resizing */
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+#input-textarea:focus, .output-area:focus {
+    border-color: var(--accent-color);
+}
+
+.output-area {
+    overflow-y: auto; /* Add scrollbar if content overflows */
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-shrink: 0;
+}
+
+.info-box {
+    background-color: var(--input-bg-color);
+    border: 1px solid var(--panel-border-color);
+    border-radius: var(--border-radius-md);
+    padding: 0.75rem 1rem;
+}
+
+.info-box label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.info-box p {
+    font-size: 1rem;
+    font-weight: 500;
+    min-height: 1.2rem; /* Prevents layout shift when content loads */
+}
+
+/* ============================================= */
+/* 6. FOOTER                                     */
+/* ============================================= */
+
+.app-footer {
+    text-align: center;
+    margin-top: 2rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    width: 100%;
+    max-width: 1400px;
+    margin: 2rem auto 0 auto;
+}
+
+/* ============================================= */
+/* 7. RESPONSIVE DESIGN                          */
+/* ============================================= */
+
+/* For tablets and smaller devices */
+@media (max-width: 900px) {
+    body {
+        padding: 1rem; /* Reduce padding on smaller screens */
+    }
+    
+    .converter-container {
+        flex-direction: column; /* Stack panels vertically */
+    }
+    
+    .app-header {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+}
+
+/* For mobile devices */
+@media (max-width: 600px) {
+    .header-actions {
+        flex-wrap: wrap; /* Allow buttons to wrap */
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .action-button, .icon-button {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr; /* Stack info boxes vertically */
+    }
+    
+    .panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
 }
