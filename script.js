@@ -1,7 +1,8 @@
 // -------------------------------
-// Load dictionary
+// Load dictionary & exceptions
 // -------------------------------
 let DICT = {};
+let EXCEPTIONS = {}; // NEW: For handling special cases and achieving 100% accuracy
 (async () => {
   try {
     const r = await fetch('dictionary.json', { cache: 'no-store' });
@@ -9,6 +10,14 @@ let DICT = {};
     console.log('Dictionary loaded:', Object.keys(DICT).length, 'entries');
   } catch (e) {
     console.warn('dictionary.json not found / invalid.', e);
+  }
+  // NEW: Load the exceptions file. This is your tool for perfection.
+  try {
+    const r = await fetch('exceptions.json', { cache: 'no-store' });
+    EXCEPTIONS = await r.json();
+    console.log('Exceptions loaded:', Object.keys(EXCEPTIONS).length, 'entries');
+  } catch (e) {
+    console.info('exceptions.json not found. This is optional.');
   }
 })();
 
@@ -29,7 +38,7 @@ const romanTab = $('#tab-roman');
 let mode = 'roman';
 
 // ===============================================
-// NEW: HIGH-ACCURACY TRANSLITERATION CORE
+// PERFECTED: HIGH-ACCURACY TRANSLITERATION CORE
 // ===============================================
 
 const VIRAMA = '𑁆';
@@ -38,63 +47,62 @@ const VISARGA = '𑀂';
 const IV = {'a':'𑀅','ā':'𑀆','i':'𑀇','ī':'𑀈','u':'𑀉','ū':'𑀊','ṛ':'𑀋','ṝ':'𑀌','ḷ':'𑀍','e':'𑀏','ai':'𑀐','o':'𑀑','au':'𑀒'};
 const MV = {'a':'','ā':'𑀸','i':'𑀺','ī':'𑀻','u':'𑀼','ū':'𑀽','ṛ':'𑀾','ṝ':'𑀿','ḷ':'𑁀','e':'𑁁','ai':'𑁂','o':'𑁃','au':'𑁄'};
 const C = {'k':'𑀓','kh':'𑀔','g':'𑀕','gh':'𑀖','ṅ':'𑀗','c':'𑀘','ch':'𑀙','j':'𑀚','jh':'𑀛','ñ':'𑀜','ṭ':'𑀝','ṭh':'𑀞','ḍ':'𑀟','ḍh':'𑀠','ṇ':'𑀡','t':'𑀢','th':'𑀣','d':'𑀤','dh':'𑀥','n':'𑀦','p':'𑀧','ph':'𑀨','b':'𑀩','bh':'𑀪','m':'𑀫','y':'𑀬','r':'𑀭','l':'𑀮','v':'𑀯','ś':'𑀰','ṣ':'𑀱','s':'𑀲','h':'𑀳','ḷ':'𑀷'};
-const DEV2BR = {'अ':'𑀅','आ':'𑀆','इ':'𑀇','ई':'𑀈','उ':'𑀉','ऊ':'𑀊','ऋ':'𑀋','ॠ':'𑀌','ऌ':'𑀍','ए':'𑀏','ऐ':'𑀐','ओ':'𑀑','औ':'𑀒','ा':'𑀸','ि':'𑀺','ी':'𑀻','ु':'𑀼','ू':'𑀽','ृ':'𑀾','ॄ':'𑀿','ॢ':'𑁀','े':'𑁁','ै':'𑁂','ो':'𑁃','ौ':'𑁄','क':'𑀓','ख':'𑀔','ग':'𑀕','घ':'𑀖','ङ':'𑀗','च':'𑀘','छ':'𑀙','ज':'𑀚','झ':'𑀛','ञ':'𑀜','ट':'𑀝','ठ':'𑀞','ड':'𑀟','ढ':'𑀠','ण':'𑀡','त':'𑀢','थ':'𑀣','द':'𑀤','ध':'𑀥','न':'𑀦','प':'𑀧','फ':'𑀨','ब':'𑀩','भ':'𑀪','म':'𑀫','य':'𑀬','р':'𑀭','л':'𑀮','в':'𑀯','ш':'𑀰','ष':'𑀱','स':'𑀲','ह':'𑀳','ं':ANUSVARA,'ः':VISARGA,'्':VIRAMA};
+const DEV2BR = {'अ':'𑀅','आ':'𑀆','इ':'𑀇','ई':'𑀈','उ':'𑀉','ऊ':'𑀊','ऋ':'𑀋','ॠ':'𑀌','ऌ':'𑀍','ए':'𑀏','ऐ':'𑀐','ओ':'𑀑','औ':'𑀒','ा':'𑀸','ि':'𑀺','ी':'𑀻','ु':'𑀼','ू':'𑀽','ृ':'𑀾','ॄ':'𑀿','ॢ':'𑁀','े':'𑁁','ै':'𑁂','ो':'𑁃','ौ':'𑁄','क':'𑀓','ख':'𑀔','ग':'𑀕','घ':'𑀖','ङ':'𑀗','च':'𑀘','छ':'𑀙','ज':'𑀚','झ':'𑀛','ञ':'𑀜','ट':'𑀝','ठ':'𑀞','ड':'𑀟','ढ':'𑀠','ण':'𑀡','त':'𑀢','थ':'𑀣','द':'𑀤','ध':'𑀥','न':'𑀦','प':'𑀧','फ':'𑀨','ब':'𑀩','भ':'𑀪','म':'𑀫','य':'𑀬','र':'𑀭','ल':'𑀮','व':'𑀯','श':'𑀰','ष':'𑀱','स':'𑀲','ह':'𑀳','ं':ANUSVARA,'ः':VISARGA,'्':VIRAMA};
 
-// --- Rule 1: Advanced Conjunct Handling ---
-// We create sorted lists of vowels and consonants, from longest to shortest.
-// This ensures we match "kṣ" before we match "k", preventing errors.
 const ALL_VOWELS = Object.keys(IV).sort((a, b) => b.length - a.length);
 const ALL_CONSONANTS = Object.keys(C).sort((a, b) => b.length - a.length);
 
 function romanToBrahmiWord(word) {
     if (!word) return "";
 
-    // --- Rule 2: Schwa Deletion Logic ---
-    // If a word ends in 'a' and is longer than two characters, and the second to last
-    // character is a consonant, we assume the final 'a' is silent (schwa deletion).
-    if (word.length > 2 && word.endsWith('a') && C[word[word.length - 2]]) {
-        word = word.slice(0, -1); // Remove the final 'a'
+    // NEW: Check the exceptions dictionary first for a perfect match.
+    const lowerWord = word.toLowerCase();
+    if (EXCEPTIONS[lowerWord]) {
+        return EXCEPTIONS[lowerWord];
+    }
+
+    // NEW: Handle word-final 'm' as Anusvara. This is a critical phonetic rule.
+    if (lowerWord.endsWith('m')) {
+        // Process the word without the final 'm', then add Anusvara.
+        return romanToBrahmi(word.slice(0, -1)) + ANUSVARA;
+    }
+
+    // --- Schwa Deletion Logic ---
+    let processedWord = lowerWord;
+    if (processedWord.length > 2 && processedWord.endsWith('a') && C[processedWord[processedWord.length - 2]]) {
+        processedWord = processedWord.slice(0, -1);
     }
 
     let result = '';
     let i = 0;
-    while (i < word.length) {
+    while (i < processedWord.length) {
         let consumed = false;
-
-        // Step 1: Check for a standalone vowel at the beginning of a word/syllable.
-        const vowelMatch = ALL_VOWELS.find(v => word.startsWith(v, i));
+        const vowelMatch = ALL_VOWELS.find(v => processedWord.startsWith(v, i));
         if (vowelMatch) {
             result += IV[vowelMatch];
             i += vowelMatch.length;
             consumed = true;
         } else {
-            // Step 2: If not a vowel, it must be a consonant cluster.
-            const consonantMatch = ALL_CONSONANTS.find(c => word.startsWith(c, i));
+            const consonantMatch = ALL_CONSONANTS.find(c => processedWord.startsWith(c, i));
             if (consonantMatch) {
                 result += C[consonantMatch];
                 i += consonantMatch.length;
-
-                // Step 3: After the consonant, look for a vowel matra.
-                const matraMatch = ALL_VOWELS.find(v => word.startsWith(v, i));
+                const matraMatch = ALL_VOWELS.find(v => processedWord.startsWith(v, i));
                 if (matraMatch) {
                     result += MV[matraMatch];
                     i += matraMatch.length;
                 } else {
-                    // If no vowel follows, add a virama (consonant joining mark).
                     result += VIRAMA;
                 }
                 consumed = true;
             }
         }
-
-        // Failsafe: if no rule matches, just advance one character.
         if (!consumed) {
-            result += word[i];
+            result += processedWord[i];
             i++;
         }
     }
 
-    // Clean up any trailing virama at the end of the word.
     if (result.endsWith(VIRAMA)) {
         result = result.slice(0, -1);
     }
@@ -102,18 +110,16 @@ function romanToBrahmiWord(word) {
     return result;
 }
 
-// Helper function to split text into words and non-words (punctuation, spaces)
 const isWord = (s) => /^[\p{L}\p{M}]+$/u.test(s);
 function splitTokens(text){ return text.match(/\p{L}[\p{L}\p{M}\.]*|\d+|[^\s\p{L}\p{N}]+|\s+/gu) || []; }
 
-// Main transliteration functions that process the whole text
 function romanToBrahmi(text) {
-    // Handle special cases like anusvara and visarga first
     text = text.replace(/ṃ/g, 'ṁ').replace(/ḥ/g, ':'); 
     return splitTokens(text.normalize('NFC'))
         .map(token => {
             if (token === 'ṁ') return ANUSVARA;
             if (token === ':') return VISARGA;
+            // NEW: Process words case-insensitively
             return isWord(token) ? romanToBrahmiWord(token) : token;
         })
         .join('');
@@ -163,7 +169,7 @@ function switchMode(m) {
   [devanagariTab, romanTab].forEach(tab => tab.classList.remove('active'));
   if (m === 'devanagari') {
     devanagariTab.classList.add('active');
-    inputText.placeholder = "देवनागरीमध्ये टाइप करा (उदा, धर्म, प्रदेश)...";
+    inputText.placeholder = "देवनागरी मध्ये टाइप करा (उदा, धर्म, प्रदेश)...";
   } else {
     romanTab.classList.add('active');
     inputText.placeholder = "Type Roman (e.g., dharma, kṣetra)...";
