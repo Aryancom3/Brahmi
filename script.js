@@ -1,5 +1,5 @@
 // ===============================================
-// PHASE 1: INITIALIZATION & SETUP
+// PHASE 1.2: INITIALIZATION & SETUP
 // ===============================================
 let DICT = {};
 let EXCEPTIONS = {};
@@ -20,12 +20,11 @@ const romanTab = $('#tab-roman');
 const themeToggleBtn = $('#theme-toggle');
 const pdfExportBtn = $('#export-pdf');
 const pngExportBtn = $('#export-png');
-const historySidebar = $('#history-sidebar');
+const historyModal = $('#history-modal'); // Changed from sidebar
 const historyOpenBtn = $('#history-open-btn');
 const historyCloseBtn = $('#history-close-btn');
 const historyList = $('#history-list');
 const historyClearBtn = $('#history-clear-btn');
-const appWrapper = $('.app-wrapper');
 
 let mode = 'roman';
 
@@ -48,6 +47,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     initHistory();
     initEventListeners();
     
+    // *** NEW: Render all Lucide icons on the page ***
+    lucide.createIcons();
+    
     // Initial transliteration
     update();
 });
@@ -69,7 +71,7 @@ function toggleTheme() {
 }
 
 // ===============================================
-// FEATURE: INPUT HISTORY
+// FEATURE: INPUT HISTORY (NOW AS A MODAL)
 // ===============================================
 function initHistory() {
     const savedHistory = localStorage.getItem('brahmiHistory');
@@ -79,8 +81,8 @@ function initHistory() {
 
 function addToHistory(text) {
     if (!text || HISTORY.includes(text)) return;
-    HISTORY.unshift(text); // Add to the beginning
-    if (HISTORY.length > 20) HISTORY.pop(); // Keep history size manageable
+    HISTORY.unshift(text);
+    if (HISTORY.length > 20) HISTORY.pop();
     localStorage.setItem('brahmiHistory', JSON.stringify(HISTORY));
     renderHistory();
 }
@@ -98,7 +100,7 @@ function renderHistory() {
         div.onclick = () => {
             inputText.value = item;
             update();
-            closeHistorySidebar();
+            closeHistoryModal();
         };
         historyList.appendChild(div);
     });
@@ -110,14 +112,12 @@ function clearHistory() {
     renderHistory();
 }
 
-function openHistorySidebar() {
-    historySidebar.classList.add('open');
-    appWrapper.classList.add('history-open');
+function openHistoryModal() {
+    historyModal.classList.add('open');
 }
 
-function closeHistorySidebar() {
-    historySidebar.classList.remove('open');
-    appWrapper.classList.remove('history-open');
+function closeHistoryModal() {
+    historyModal.classList.remove('open');
 }
 
 // ===============================================
@@ -126,9 +126,10 @@ function closeHistorySidebar() {
 async function exportAsPNG() {
     if (!outDiv.textContent) { toast('Nothing to export.'); return; }
     try {
+        toast('Generating PNG...');
         const canvas = await html2canvas(outDiv, {
             backgroundColor: getComputedStyle(document.body).getPropertyValue('--input-bg-color'),
-            scale: 2 // Higher scale for better quality
+            scale: 2
         });
         const link = document.createElement('a');
         link.download = 'brahmi-export.png';
@@ -148,7 +149,7 @@ async function exportAsPDF() {
     try {
         const canvas = await html2canvas(outDiv, {
             backgroundColor: getComputedStyle(document.body).getPropertyValue('--input-bg-color'),
-            scale: 3 // Higher scale for PDF quality
+            scale: 3
         });
         const imgData = canvas.toDataURL('image/png');
         const { jsPDF } = window.jspdf;
@@ -174,8 +175,8 @@ function initEventListeners() {
     themeToggleBtn.addEventListener('click', toggleTheme);
     pdfExportBtn.addEventListener('click', exportAsPDF);
     pngExportBtn.addEventListener('click', exportAsPNG);
-    historyOpenBtn.addEventListener('click', openHistorySidebar);
-    historyCloseBtn.addEventListener('click', closeHistorySidebar);
+    historyOpenBtn.addEventListener('click', openHistoryModal);
+    historyCloseBtn.addEventListener('click', closeHistoryModal);
     historyClearBtn.addEventListener('click', clearHistory);
     devanagariTab.addEventListener('click', () => switchMode('devanagari'));
     romanTab.addEventListener('click', () => switchMode('roman'));
@@ -185,7 +186,7 @@ function initEventListeners() {
 // ===============================================
 // CORE LOGIC (Transliteration, Update Loop, etc.)
 // ===============================================
-const VIRAMA = '𑁆'; const ANUSVARA = '𑀁'; const VISARGA = '𑀂'; const IV = {'a':'𑀅','ā':'𑀆','i':'𑀇','ī':'𑀈','u':'𑀉','ū':'𑀊','ṛ':'𑀋','ṝ':'𑀌','ḷ':'𑀍','e':'𑀏','ai':'𑀐','o':'𑀑','au':'𑀒'}; const MV = {'a':'','ā':'𑀸','i':'𑀺','ī':'𑀻','u':'𑀼','ū':'𑀽','ṛ':'𑀾','ṝ':'𑀿','ḷ':'𑁀','e':'𑁁','ai':'𑁂','o':'𑁃','au':'𑁄'}; const C = {'k':'𑀓','kh':'𑀔','g':'𑀕','gh':'𑀖','ṅ':'𑀗','c':'𑀘','ch':'𑀙','j':'𑀚','jh':'𑀛','ñ':'𑀜','ṭ':'𑀝','ṭh':'𑀞','ḍ':'𑀟','ḍh':'𑀠','ṇ':'𑀡','t':'𑀢','th':'𑀣','d':'𑀤','dh':'𑀥','n':'𑀦','p':'𑀧','ph':'𑀨','b':'𑀩','bh':'𑀪','m':'𑀫','y':'𑀬','r':'𑀭','l':'𑀮','v':'𑀯','ś':'𑀰','ṣ':'𑀱','s':'𑀲','h':'𑀳','ḷ':'𑀷'}; const DEV2BR = {'अ':'𑀅','आ':'𑀆','इ':'𑀇','ई':'𑀈','उ':'𑀉','ऊ':'𑀊','ऋ':'𑀋','ॠ':'𑀌','ऌ':'𑀍','ए':'𑀏','ऐ':'𑀐','ओ':'𑀑','औ':'𑀒','ा':'𑀸','ि':'𑀺','ी':'𑀻','ु':'𑀼','ू':'𑀽','ृ':'𑀾','ॄ':'𑀿','ॢ':'𑁀','े':'𑁁','ै':'𑁂','ो':'𑁃','ौ':'𑁄','क':'𑀓','ख':'𑀔','ग':'𑀕','घ':'𑀖','ङ':'𑀗','च':'𑀘','छ':'𑀙','ج':'𑀚','झ':'𑀛','ञ':'𑀜','ट':'𑀝','ठ':'𑀞','ड':'𑀟','ढ':'𑀠','ण':'𑀡','त':'𑀢','थ':'𑀣','द':'𑀤','ध':'𑀥','न':'𑀦','प':'𑀧','फ':'𑀨','ब':'𑀩','भ':'𑀪','म':'𑀫','य':'𑀬','र':'𑀭','ल':'𑀮','व':'𑀯','श':'𑀰','ष':'𑀱','स':'𑀲','ह':'𑀳','ं':ANUSVARA,'ः':VISARGA,'्':VIRAMA};
+const VIRAMA = '𑁆'; const ANUSVARA = '𑀁'; const VISARGA = '𑀂'; const IV = {'a':'𑀅','ā':'𑀆','i':'𑀇','ī':'𑀈','u':'𑀉','ū':'𑀊','ṛ':'𑀋','ṝ':'𑀌','ḷ':'𑀍','e':'𑀏','ai':'𑀐','o':'𑀑','au':'𑀒'}; const MV = {'a':'','ā':'𑀸','i':'𑀺','ī':'𑀻','u':'𑀼','ū':'𑀽','ṛ':'𑀾','ṝ':'𑀿','ḷ':'𑁀','e':'𑁁','ai':'𑁂','o':'𑁃','au':'𑁄'}; const C = {'k':'𑀓','kh':'𑀔','g':'𑀕','gh':'𑀖','ṅ':'𑀗','c':'𑀘','ch':'𑀙','j':'𑀚','jh':'𑀛','ñ':'𑀜','ṭ':'𑀝','ṭh':'𑀞','ḍ':'𑀟','ḍh':'𑀠','ṇ':'𑀡','t':'𑀢','th':'𑀣','d':'𑀤','dh':'𑀥','n':'𑀦','p':'𑀧','ph':'𑀨','b':'𑀩','bh':'𑀪','m':'𑀫','y':'𑀬','r':'𑀭','l':'𑀮','v':'𑀯','ś':'𑀰','ṣ':'𑀱','s':'𑀲','h':'𑀳','ḷ':'𑀷'}; const DEV2BR = {'अ':'𑀅','आ':'𑀆','इ':'𑀇','ई':'𑀈','उ':'𑀉','ऊ':'𑀊','ऋ':'𑀋','ॠ':'𑀌','ऌ':'𑀍','ए':'𑀏','ऐ':'𑀐','ओ':'𑀑','औ':'𑀒','ा':'𑀸','ि':'𑀺','ी':'𑀻','ु':'𑀼','ू':'𑀽','ृ':'𑀾','ॄ':'𑀿','ॢ':'𑁀','े':'𑁁','ै':'𑁂','ो':'𑁃','ौ':'𑁄','क':'𑀓','ख':'𑀔','ग':'𑀕','घ':'𑀖','ङ':'𑀗','च':'𑀘','छ':'𑀙','ज':'𑀚','झ':'𑀛','ञ':'𑀜','ट':'𑀝','ठ':'𑀞','ड':'𑀟','ढ':'𑀠','ण':'𑀡','त':'𑀢','थ':'𑀣','द':'𑀤','ध':'𑀥','न':'𑀦','प':'𑀧','फ':'𑀨','ब':'𑀩','भ':'𑀪','म':'𑀫','य':'𑀬','र':'𑀭','ल':'𑀮','व':'𑀯','श':'𑀰','ष':'𑀱','स':'𑀲','ह':'𑀳','ं':ANUSVARA,'ः':VISARGA,'्':VIRAMA};
 const ALL_VOWELS = Object.keys(IV).sort((a, b) => b.length - a.length); const ALL_CONSONANTS = Object.keys(C).sort((a, b) => b.length - a.length);
 function romanToBrahmiWord(word) { if (!word) return ""; const lowerWord = word.toLowerCase(); if (EXCEPTIONS[lowerWord]) { return EXCEPTIONS[lowerWord]; } if (lowerWord.endsWith('m')) { return romanToBrahmi(word.slice(0, -1)) + ANUSVARA; } let processedWord = lowerWord; if (processedWord.length > 2 && processedWord.endsWith('a') && C[processedWord[processedWord.length - 2]]) { processedWord = processedWord.slice(0, -1); } let result = ''; let i = 0; while (i < processedWord.length) { let consumed = false; const vowelMatch = ALL_VOWELS.find(v => processedWord.startsWith(v, i)); if (vowelMatch) { result += IV[vowelMatch]; i += vowelMatch.length; consumed = true; } else { const consonantMatch = ALL_CONSONANTS.find(c => processedWord.startsWith(c, i)); if (consonantMatch) { result += C[consonantMatch]; i += consonantMatch.length; const matraMatch = ALL_VOWELS.find(v => processedWord.startsWith(v, i)); if (matraMatch) { result += MV[matraMatch]; i += matraMatch.length; } else { result += VIRAMA; } consumed = true; } } if (!consumed) { result += processedWord[i]; i++; } } if (result.endsWith(VIRAMA)) { result = result.slice(0, -1); } return result; }
 const isWord = (s) => /^[\p{L}\p{M}]+$/u.test(s); function splitTokens(text){ return text.match(/\p{L}[\p{L}\p{M}\.]*|\d+|[^\s\p{L}\p{N}]+|\s+/gu) || []; }
@@ -200,16 +201,14 @@ function updateSuggestions(lastWord) { if (!suggestionsDiv) return; suggestionsD
 function computeAccuracy(src) { if (!src) return 0; const tokens = splitTokens(src).filter(isWord); if (tokens.length === 0) return 0; let hits = 0; for (const t of tokens) { if (DICT[t.toLowerCase()]) hits++; } return Math.min(100, Math.round((hits / tokens.length) * 90 + 10)); }
 function renderAccuracy(val) { if (!accuracyBar) return; accuracyBar.textContent = `Roman/Devanagari → Brahmi • High Accuracy Engine`; }
 
-// Debounce the update function to prevent lag on fast typing
 let timeout;
 inputText.addEventListener('input', () => {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
         update();
-    }, 150); // 150ms delay
+    }, 150);
 });
 
-// Final update on blur to capture the last input and add to history
 inputText.addEventListener('blur', () => {
     update();
     addToHistory(inputText.value.trim());
