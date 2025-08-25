@@ -3,100 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brahmi Transliteration Tool</title>
+    <title>Brahmi Next Level</title>
     
-    <!-- Link to your existing stylesheet -->
+    <!-- Stylesheet -->
     <link rel="stylesheet" href="style.css">
     
-    <!-- Google Fonts: Inter for a clean, modern look -->
+    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     
-    <!-- Favicon (optional but recommended for a polished look) -->
+    <!-- Favicon -->
     <link rel="icon" href="https://placehold.co/32x32/2D334D/FFFFFF?text=B" type="image/png">
+
+    <!-- External Libraries -->
+    <!-- jsPDF for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- html2canvas for PNG/PDF Image Rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Lucide Icons for a modern look -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
-    <!-- Header Section: Contains the logo and action buttons -->
-    <header class="app-header">
-        <div class="logo">
-            <!-- You can replace the text with an SVG logo if you have one -->
-            <span class="logo-icon">𑁋</span> Brahmi
-        </div>
-        <div class="header-actions">
-            <button id="theme-toggle" class="icon-button" aria-label="Toggle dark mode">
-                <!-- Use an SVG for icons for better quality and styling -->
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    <!-- NEW: History Sidebar (hidden by default) -->
+    <aside id="history-sidebar" class="history-sidebar">
+        <div class="history-header">
+            <h3>History</h3>
+            <button id="history-close-btn" class="icon-button">
+                <i data-lucide="x"></i>
             </button>
-            <button id="export-pdf" class="action-button">Export PDF</button>
-            <button id="download-txt" class="action-button">Download TXT</button>
-            <button id="copy-output" class="action-button primary">Copy Output</button>
         </div>
-    </header>
+        <div id="history-list" class="history-list">
+            <!-- History items will be populated by script.js -->
+            <p class="history-empty">No history yet.</p>
+        </div>
+        <button id="history-clear-btn" class="clear-button">
+            <i data-lucide="trash-2"></i> Clear History
+        </button>
+    </aside>
 
-    <!-- Main Container: Holds the input and output panels -->
-    <main class="converter-container">
-
-        <!-- Input Panel -->
-        <section class="panel input-panel">
-            <div class="panel-header">
-                <h2>Input</h2>
-                <div class="tabs">
-                    <!-- The 'active' class will be managed by your script.js -->
-                    <button id="tab-roman" class="tab-button active">Roman (IAST/ASCII)</button>
-                    <button id="tab-devanagari" class="tab-button">Devanagari</button>
-                </div>
+    <!-- Main Application Wrapper -->
+    <div class="app-wrapper">
+        <!-- Header Section -->
+        <header class="app-header">
+            <div class="logo">
+                <span class="logo-icon">𑁋</span> Brahmi
             </div>
-            <!-- This is your main input area -->
-            <textarea id="input-textarea" placeholder="Type Roman (e.g., dharma, kṣetra) or Devanagari (e.g., धर्म, क्षेत्र) ..."></textarea>
-            <div class="info-grid">
-                <div class="info-box">
-                    <label>Detected</label>
-                    <!-- This will be updated by your script.js -->
-                    <p id="detected-language">Roman</p>
-                </div>
-                <div class="info-box">
-                    <label>Meaning (from dictionary.json)</label>
-                    <!-- This will be updated by your script.js -->
-                    <p id="meaning-output">—</p>
-                </div>
+            <div class="header-actions">
+                <button id="history-open-btn" class="icon-button" aria-label="Toggle History">
+                    <i data-lucide="history"></i>
+                </button>
+                <button id="theme-toggle" class="icon-button" aria-label="Toggle Theme">
+                    <i data-lucide="sun" class="light-icon"></i>
+                    <i data-lucide="moon" class="dark-icon"></i>
+                </button>
+                <button id="export-png" class="action-button">
+                    <i data-lucide="image"></i> Export PNG
+                </button>
+                <button id="export-pdf" class="action-button">
+                    <i data-lucide="file-text"></i> Export PDF
+                </button>
+                <button id="copy-output" class="action-button primary">
+                    <i data-lucide="copy"></i> Copy Output
+                </button>
             </div>
-        </section>
+        </header>
 
-        <!-- Output Panel -->
-        <section class="panel output-panel">
-            <div class="panel-header">
-                <h2>Brahmi Output</h2>
-                <div class="tabs">
-                    <button class="tab-button active">Unicode Brahmi</button>
+        <!-- Main Converter Container -->
+        <main class="converter-container">
+            <!-- Input Panel -->
+            <section class="panel input-panel">
+                <div class="panel-header">
+                    <h2>Input</h2>
+                    <div class="tabs">
+                        <button id="tab-roman" class="tab-button active">Roman (IAST/ASCII)</button>
+                        <button id="tab-devanagari" class="tab-button">Devanagari</button>
+                    </div>
                 </div>
-            </div>
-            <!-- This is your main output area. Use a div as it's read-only. -->
-            <div id="output-brahmi" class="output-area" contenteditable="false" aria-readonly="true"></div>
-            <div class="info-grid">
-                <div class="info-box">
-                    <label>IPA helper</label>
-                    <!-- This will be updated by your script.js -->
-                    <p id="ipa-helper">—</p>
+                <textarea id="input-textarea" placeholder="Type Roman (e.g., dharma, kṣetra)..."></textarea>
+                <div id="suggestions-container" class="suggestions-wrapper"></div> 
+                <div class="info-grid">
+                    <div class="info-box">
+                        <label>Detected</label>
+                        <p id="detected-language">Roman</p>
+                    </div>
+                    <div class="info-box">
+                        <label>Meaning (from dictionary.json)</label>
+                        <p id="meaning-output">—</p>
+                    </div>
                 </div>
-                <div class="info-box">
-                    <label>Stats</label>
-                    <!-- This will be updated by your script.js -->
-                    <p id="char-stats">0 chars</p>
+            </section>
+
+            <!-- Output Panel -->
+            <section class="panel output-panel">
+                <div class="panel-header">
+                    <h2>Brahmi Output</h2>
+                    <!-- NEW: Dropdown for historical variants (Phase 3) -->
+                    <div class="dropdown-wrapper">
+                        <select id="script-variant-select" disabled>
+                            <option value="brahmi">Standard Brahmi</option>
+                            <option value="ashokan">Ashokan (Soon)</option>
+                            <option value="gupta">Gupta (Soon)</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-        </section>
+                <!-- The div to be exported as an image -->
+                <div id="output-brahmi" class="output-area" contenteditable="false" aria-readonly="true"></div>
+                <div class="info-grid">
+                    <div class="info-box">
+                        <label>IPA helper</label>
+                        <p id="ipa-helper">—</p>
+                    </div>
+                    <div class="info-box">
+                        <label>Stats</label>
+                        <p id="char-stats">0 chars</p>
+                    </div>
+                </div>
+            </section>
+        </main>
 
-    </main>
+        <!-- Footer Section -->
+        <footer class="app-footer">
+            <p id="accuracyBar">Roman/Devanagari → Brahmi • High Accuracy Engine</p>
+        </footer>
+    </div>
 
-    <!-- Footer Section: For accuracy info or other notes -->
-    <footer class="app-footer">
-        <!-- The accuracy bar can be dynamically updated via script.js -->
-        <p id="accuracyBar">Roman/Devanagari → Brahmi • 98% target with nulls + dictionary. No fonts required (pure Unicode).</p>
-    </footer>
-
-    <!-- Link to your existing JavaScript file at the end of the body -->
+    <!-- Main Script -->
     <script src="script.js"></script>
 </body>
 </html>
