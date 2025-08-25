@@ -5,47 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brahmi Next Level</title>
     
-    <!-- Stylesheet -->
     <link rel="stylesheet" href="style.css">
     
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     
-    <!-- Favicon -->
     <link rel="icon" href="https://placehold.co/32x32/2D334D/FFFFFF?text=B" type="image/png">
 
     <!-- External Libraries -->
-    <!-- jsPDF for PDF Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- html2canvas for PNG/PDF Image Rendering -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- Lucide Icons for a modern look -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
-    <!-- NEW: History Sidebar (hidden by default) -->
-    <aside id="history-sidebar" class="history-sidebar">
-        <div class="history-header">
-            <h3>History</h3>
-            <button id="history-close-btn" class="icon-button">
-                <i data-lucide="x"></i>
+    <!-- NEW: History Modal (hidden by default) -->
+    <div id="history-modal" class="modal-overlay">
+        <div class="modal-content history-dashboard">
+            <div class="history-header">
+                <h3>History</h3>
+                <button id="history-close-btn" class="icon-button">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div id="history-list" class="history-list">
+                <p class="history-empty">No history yet.</p>
+            </div>
+            <button id="history-clear-btn" class="clear-button">
+                <i data-lucide="trash-2"></i> Clear History
             </button>
         </div>
-        <div id="history-list" class="history-list">
-            <!-- History items will be populated by script.js -->
-            <p class="history-empty">No history yet.</p>
-        </div>
-        <button id="history-clear-btn" class="clear-button">
-            <i data-lucide="trash-2"></i> Clear History
-        </button>
-    </aside>
+    </div>
 
     <!-- Main Application Wrapper -->
     <div class="app-wrapper">
-        <!-- Header Section -->
         <header class="app-header">
             <div class="logo">
                 <span class="logo-icon">𑁋</span> Brahmi
@@ -70,7 +64,6 @@
             </div>
         </header>
 
-        <!-- Main Converter Container -->
         <main class="converter-container">
             <!-- Input Panel -->
             <section class="panel input-panel">
@@ -99,7 +92,6 @@
             <section class="panel output-panel">
                 <div class="panel-header">
                     <h2>Brahmi Output</h2>
-                    <!-- NEW: Dropdown for historical variants (Phase 3) -->
                     <div class="dropdown-wrapper">
                         <select id="script-variant-select" disabled>
                             <option value="brahmi">Standard Brahmi</option>
@@ -108,7 +100,6 @@
                         </select>
                     </div>
                 </div>
-                <!-- The div to be exported as an image -->
                 <div id="output-brahmi" class="output-area" contenteditable="false" aria-readonly="true"></div>
                 <div class="info-grid">
                     <div class="info-box">
@@ -123,13 +114,11 @@
             </section>
         </main>
 
-        <!-- Footer Section -->
         <footer class="app-footer">
             <p id="accuracyBar">Roman/Devanagari → Brahmi • High Accuracy Engine</p>
         </footer>
     </div>
 
-    <!-- Main Script -->
     <script src="script.js"></script>
 </body>
 </html>
